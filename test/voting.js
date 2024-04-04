@@ -24,7 +24,35 @@ describe("Voting", ()=>{
       await expect(voting.join({value:"1000000"})).to.emit(voting, "MemberJoined")
     })
   })
+
+  describe("Create a vote", ()=>{
+    it("Can not create if not a member", async ()=>{
+      await expect(voting.createVote("ex1", 1834587, 3)).to.be.revertedWith(
+        "You are not member, Please join to vote or create one"
+      )
+    })
+    it("Can not create if invalid option", async ()=>{
+      await voting.join({value:"1000000"});
+      await expect(voting.createVote("ex2", 2983489, 1)). to.be.revertedWith(
+        "The options must be between 1 to 5"
+      )
+      await expect(voting.createVote("ex2", 2983489, 6)). to.be.revertedWith(
+        "The options must be between 1 to 5"
+      )
+    })
+    it("Can not create if expiry is in past", async ()=>{
+      await voting.join({value:"1000000"})
+      await expect(voting.createVote("ex3", 29393344, 3)).to.be.revertedWith(
+        "Expire time can not be in past"
+      )
+    })
+    it("Can create a vote", async ()=>{
+      await voting.join({value:1000000})
+      await expect(voting.createVote("ex4", 3289783452, 3)).to.emit(voting, "VoteCreated")
+    })
+
+  })
 })
 
-// join(alreadyJoined, payToJoin), createVote(isMember,correctOption,notExpired), vote
+// join(alreadyJoined, payToJoin), createVote(isMember,correctOption,notPast), vote
 // (isMember, canVote) didVote, getVote

@@ -34,7 +34,7 @@ contract Voting {
     );
 
     modifier isMember(){
-        require(members[msg.sender], "You are not member, Please join to vote");
+        require(members[msg.sender], "You are not member, Please join to vote or create one");
         _;
     }
     modifier canVote(uint voteId, uint option){
@@ -57,7 +57,7 @@ contract Voting {
         uint expireAt, 
         uint options
     ) external isMember(){
-        require(options > 1 && options < 5, "options must between 1 to 5");
+        require(options > 1 && options < 5, "The options must be between 1 to 5");
         require(expireAt > block.timestamp, "Expire time can not be in past");
         uint voteId = nextVoteId;
 
