@@ -50,9 +50,46 @@ describe("Voting", ()=>{
       await voting.join({value:1000000})
       await expect(voting.createVote("ex4", 3289783452, 3)).to.emit(voting, "VoteCreated")
     })
-
   })
+
+  describe("Vote", ()=>{
+    it("Can not vote if not member", async ()=>{
+      await expect(voting.vote(2,3)).to.be.revertedWith(
+        "You are not member, Please join to vote or create one"
+      )
+    })
+    it("Can not vote if vote does not exist", async ()=>{
+      await voting.join({value:1000000});
+      await expect(voting.vote(0, 2)).to.be.revertedWith(
+        "Vote does not exist"
+      )
+    })
+    it("Can not vote twice", async ()=>{
+      await voting.join({value:1000000})
+      await voting.createVote("ex4", 2389387489, 4);
+      await voting.vote(0, 1)
+      await expect(voting.vote(0, 3)).to.be.revertedWith(
+        "You already voted"
+      )
+    })
+    it("Can not vote with invalid option", async ()=>{
+      await voting.join({value:1000000})
+      await voting.createVote("ex4", 2389387489, 4);
+      await expect(voting.vote(0, 6)).to.be.revertedWith(
+        "Invalid option"
+      )
+    })
+    it("Can not vote if it is expired", async ()=>{
+      await voting.join({value:1000000})
+      await voting.createVote("ex4", 1712233230, 4);
+      // need to increase block
+      await expect(voting.vote(0, 2)).to.be.revertedWith(
+        "Vote is expired"
+      )
+    })   
+  })
+  
 })
 
-// join(alreadyJoined, payToJoin), createVote(isMember,correctOption,notPast), vote
-// (isMember, canVote) didVote, getVote
+// join(alreadyJoined, payToJoin),1712233230 createVote(isMember,correctOption,notPast), vote
+// (isMember, votNotExist, alreadyVoted, invalidOption, voteExpired) didVote, getVote

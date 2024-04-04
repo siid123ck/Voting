@@ -36,10 +36,10 @@ contract Voting {
     modifier isMember(){
         require(members[msg.sender], "You are not member, Please join to vote or create one");
         _;
-    }
-    modifier canVote(uint voteId, uint option){
+    } 
+    modifier canVote(uint voteId, uint option){ 
         require(voteId < nextVoteId, "Vote does not exist");
-        require(votes[voteId].isVoted[msg.sender], "You already voted");
+        require(!votes[voteId].isVoted[msg.sender], "You already voted");
         require(option < votes[voteId].options, "Invalid option");
         require(block.timestamp <= votes[voteId].expireAt, "Vote is expired already");
         _;
