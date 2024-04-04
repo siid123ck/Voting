@@ -16,9 +16,9 @@ contract Voting {
     }
 
     mapping(uint=>Vote) votes;
-    mapping(address=>bool) public voters;
+    mapping(address=>bool) public members;
     
-    event VoterJoined(address indexed voter, uint indexed joinedAt);
+    event MemberJoined(address indexed member, uint indexed joinedAt);
     event VoteCreated(
         address indexed owner, 
         uint indexed voteId, 
@@ -27,17 +27,16 @@ contract Voting {
     );
 
     event Voted(
-        address indexed voter,
+        address indexed member,
         uint indexed voteId,
         uint indexed votedAt,
         uint  option
     );
 
-    modifier isVoter(){
-        require(voters[msg.sender], "You are not voter, Please join to vote");
+    modifier isMember(){
+        require(members[msg.sender], "You are not member, Please join to vote");
         _;
     }
-
     modifier canVote(uint voteId, uint option){
         require(voteId < nextVoteId, "Vote does not exist");
         require(votes[voteId].isVoted[msg.sender], "You already voted");
@@ -47,17 +46,17 @@ contract Voting {
     }
 
     function join() payable external{
-        require(!voters[msg.sender], "You already joined");
+        require(!members[msg.sender], "You already joined");
         require(msg.value == votingFee, "You need to pay the fee to join");
-        voters[msg.sender] = true;
-        emit VoterJoined(msg.sender, block.timestamp);
+        members[msg.sender] = true;
+        emit MemberJoined(msg.sender, block.timestamp);
     }
 
     function createVote(
         string memory uri,
         uint expireAt, 
         uint options
-    ) external isVoter(){
+    ) external isMember(){
         require(options > 1 && options < 5, "options must between 1 to 5");
         require(expireAt > block.timestamp, "Expire time can not be in past");
         uint voteId = nextVoteId;
@@ -73,7 +72,7 @@ contract Voting {
     }
 
     function  vote(uint voteId, uint option)
-     isVoter() canVote(voteId, option) external {
+     isMember() canVote(voteId, option) external {
         votes[voteId].isVoted[msg.sender] = true;
         votes[voteId].votes[option]++;
 
@@ -89,8 +88,8 @@ contract Voting {
             votes[voteId].expireAt);
     }
 
-    function didVote(address voter, uint voteId) public view returns(bool){
-        return votes[voteId].isVoted[voter];
+    function didVote(address member, uint voteId) public view returns(bool){
+        return votes[voteId].isVoted[member];
     }
 
 
