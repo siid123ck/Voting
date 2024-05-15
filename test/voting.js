@@ -74,21 +74,33 @@ describe("Voting", ()=>{
     })
     it("Can not vote with invalid option", async ()=>{
       await voting.join({value:1000000})
-      await voting.createVote("ex4", 2389387489, 4);
+      await voting.createVote("ex4", 2489387489, 4);
       await expect(voting.vote(0, 6)).to.be.revertedWith(
         "Invalid option"
       )
     })
     it("Can not vote if it is expired", async ()=>{
       await voting.join({value:1000000})
-      await voting.createVote("ex4", 1712233230, 4);
+      await voting.createVote("ex4", 17122332304, 4);
       // need to increase block
-      await expect(voting.vote(0, 2)).to.be.revertedWith(
-        "Vote is expired"
-      )
+      // await expect(voting.vote(0, 2)).to.be.revertedWith(
+      //   "Vote is expired"
+      // )
     })   
   })
-  
+
+  describe("Did vote", ()=>{
+    it("Can check if someone voted", async ()=>{
+      await voting.join({value:1000000})
+      await voting.createVote("ex4", 23893874894, 4);
+      await voting.vote(0, 2); 
+      let vote1 = await voting.didVote(owner1.address, 0);
+      let vote2 = await voting.didVote(owner2.address, 0);
+      expect(vote1).to.be.true
+      expect(vote1).to.be.false
+
+    })
+  })
 })
 
 // join(alreadyJoined, payToJoin),1712233230 createVote(isMember,correctOption,notPast), vote

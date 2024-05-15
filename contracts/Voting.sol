@@ -15,8 +15,9 @@ contract Voting {
         uint options;
     }
 
-    mapping(uint=>Vote) votes;
+    mapping(uint=>Vote) public votes;
     mapping(address=>bool) public members;
+    uint public test = 1000;
     
     event MemberJoined(address indexed member, uint indexed joinedAt);
     event VoteCreated(
